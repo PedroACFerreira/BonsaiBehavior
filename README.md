@@ -5,8 +5,8 @@ Created by Pedro Ferreira for the Master thesis "Microglia-mediated remodelling 
 
 This project is licensed under the terms of the MIT license.
 
-
-
+ 
+ 
 
 Requires Bonsai-Rx v2.4_preview (https://bitbucket.org/horizongir/bonsai/downloads)
 
