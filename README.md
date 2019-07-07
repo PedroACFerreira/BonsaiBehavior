@@ -6,6 +6,8 @@ Created by Pedro Ferreira for the Master thesis "Microglia-mediated remodelling 
 This project is licensed under the terms of the MIT license.
 
 
+
+
 Requires Bonsai-Rx v2.4_preview (https://bitbucket.org/horizongir/bonsai/downloads)
 
 The "Bonsai Behavior.bonsai" and "Bonsai Behavior.layout" files are both required to be in the same folder to be run. 
