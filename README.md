@@ -1,4 +1,4 @@
-# BonsaiBehavior
+# Bonsai-Rx workflow for semi-automated rodent behavior analysis
 Bonsai-Rx v2.4 Behavior Analysis custom workflow
 
 Created by Pedro Ferreira for the Master thesis "Microglia-mediated remodelling of the cerebellar circuit"
