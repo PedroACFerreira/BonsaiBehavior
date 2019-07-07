@@ -3,7 +3,9 @@ Bonsai-Rx v2.4 Behavior Analysis custom workflow
 
 Created by Pedro Ferreira for the Master thesis "Microglia-mediated remodelling of the cerebellar circuit"
 
-This project is licensed under the terms of the MIT license.
+This project is licensed under the terms of the MIT license. If used in published papers, please cite as:
+
+Ferreira, P (2019) Bonsai-Rx Behavior Analysis Worklfow. https://github.com/PedroACFerreira/BonsaiBehavior
 
 ---------------------------------------------------------------------------------------------------------------------- 
 
