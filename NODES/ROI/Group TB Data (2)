@@ -1,0 +1,30 @@
+from System import Tuple
+
+DataCSV = ""
+List = []
+Counter = 0
+
+@returns(list)
+def process(value):
+  
+  global Counter
+  global List
+  global DataCSV
+
+  VideoFR = value.Item2.Item1
+  VideoName = value.Item1.Item1
+
+  Time = value.Item3.TotalMilliseconds
+  
+  VList = value.Item1.Item2
+
+  if Time == 0:
+    DataCSV = ""
+    List = []
+    Counter = 0
+
+  DataCSV = VideoName + ";" + ";" + ";" + str(VList[0]/VideoFR) + ";" + str(VList[1]/VideoFR) + ";" + str(VList[2]/VideoFR) + ";" + str(VList[3]/VideoFR) + ";" + str(VList[4]/VideoFR) + ";" + "\n"
+
+  List.append(DataCSV)
+
+  return List
