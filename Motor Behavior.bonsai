@@ -1,0 +1,1212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.4.0-preview">
+  <Workflow xmlns:q1="clr-namespace:Bonsai.IO;assembly=Bonsai.System" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:q2="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting" xmlns:q3="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://bonsai-rx.org/2018/workflow">
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:GetFiles">
+          <q1:Path>C:\Users\User\Desktop\Microglia Project\Behavior Data\Bonsai\OFT Videos\Analysing\OFT 1</q1:Path>
+          <q1:SearchPattern>*.mpg</q1:SearchPattern>
+          <q1:SearchOption>AllDirectories</q1:SearchOption>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Concat" />
+      </Expression>
+      <Expression xsi:type="SelectMany">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="RepeatCount">
+                <Count>1</Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="CreateObservable">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>FileName</Name>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="FileName" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:FileCapture">
+                <q3:FileName>C:\Users\User\Desktop\Microglia Project\Behavior Data\Bonsai\OFT Videos\Analysing\OFT 1\Trial     1.mpg</q3:FileName>
+                <q3:PlaybackRate>256</q3:PlaybackRate>
+                <q3:StartPosition>0</q3:StartPosition>
+                <q3:PositionUnits>Frames</q3:PositionUnits>
+                <q3:Loop>false</q3:Loop>
+                <q3:Playing>true</q3:Playing>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:Crop">
+                <q3:RegionOfInterest>
+                  <q3:X>86</q3:X>
+                  <q3:Y>6</q3:Y>
+                  <q3:Width>474</q3:Width>
+                  <q3:Height>442</q3:Height>
+                </q3:RegionOfInterest>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:ColorBalance">
+                <q3:Scale>
+                  <q3:Val0>3.01</q3:Val0>
+                  <q3:Val1>0.78</q3:Val1>
+                  <q3:Val2>1.72</q3:Val2>
+                  <q3:Val3>1.26</q3:Val3>
+                </q3:Scale>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:Grayscale" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:BackgroundSubtraction">
+                <q3:BackgroundFrames>75</q3:BackgroundFrames>
+                <q3:AdaptationRate>0</q3:AdaptationRate>
+                <q3:ThresholdValue>50</q3:ThresholdValue>
+                <q3:ThresholdType>Binary</q3:ThresholdType>
+                <q3:SubtractionMethod>Dark</q3:SubtractionMethod>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:Smooth">
+                <q3:SmoothType>Median</q3:SmoothType>
+                <q3:Size1>11</q3:Size1>
+                <q3:Size2>17</q3:Size2>
+                <q3:Sigma1>0</q3:Sigma1>
+                <q3:Sigma2>0</q3:Sigma2>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Skip">
+                <Count>300</Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:FindContours">
+                <q3:Mode>External</q3:Mode>
+                <q3:Method>ChainApproxSimple</q3:Method>
+                <q3:Offset>
+                  <q3:X>0</q3:X>
+                  <q3:Y>0</q3:Y>
+                </q3:Offset>
+                <q3:MinArea xsi:nil="true" />
+                <q3:MaxArea xsi:nil="true" />
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:BinaryRegionAnalysis" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:LargestBinaryRegion" />
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Centroid</Selector>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Skip">
+                <Count>1</Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Euclidean Distance</q2:Name>
+              <q2:Script>import math
+@returns(float)
+def process(value):
+  speed = math.sqrt(((value.Item1.X-value.Item2.X)**2)+((value.Item1.Y-value.Item2.Y)**2))
+  return float(speed)</q2:Script>
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Settings</q2:Name>
+              <q2:Script>from System import Tuple
+
+#############################################
+#    Here's the values to be set manually   #
+################################################################################
+
+VideoFR = 30      # Video frame rate (Frames per second)
+TBinsEnable = 1   # Do you want time bins? (1/0)
+Min = 10         # Minutes per time bin
+Ratio = 0.12      # Conversion ratio pixel to centimeter
+Error1 = 25       # Maximum number of pixels to move in one frame
+Error5 = 100      # Maximum number pixels to move in five frames
+Threshold = 1     # Minimum number of pixels to move on average in five frames
+NumTBins = 6      # Total number of time bins pretended
+
+################################################################################
+
+TBins = [TBinsEnable,NumTBins]
+
+################################################################################
+
+@returns(Tuple[int,list,float,float,float,float,float])
+def process(value):
+
+  global VideoFR
+  global Min
+  global Ratio
+  global Error1
+  global Error5
+  global Threshold
+  global TBins
+
+  return Tuple.Create(VideoFR,TBins,float(Min),float(Ratio),float(Error1),float(Error5),float(Threshold))</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Timestamp" />
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Timestamp</Selector>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Take">
+                <Count>1</Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="CombineLatest" />
+            </Expression>
+            <Expression xsi:type="Subtract" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Time bins</q2:Name>
+              <q2:Script>from System import Tuple
+
+# &gt;&gt;&gt; GLOBAL VARIABLES &lt;&lt;&lt;
+
+VideoFR = 0   # Video frame rate
+TBins = 0     # Do you want time bins? (True/False)
+Min = 0       # Minutes per time bin
+
+################
+
+Counter = 0
+TBinFR = Min * 60 * VideoFR
+
+################
+
+@returns(bool)
+def process(value):
+
+  global Counter
+  global VideoFR
+  global TBins
+  global Min
+  global TBinFR
+
+  VideoFR = value.Item2.Item1
+  TBins = value.Item2.Item2[0]
+  Min = value.Item2.Item3
+  
+  Time = value.Item1.TotalMilliseconds
+
+  TBinFR = Min * 60 * VideoFR
+
+  if Time == 0:
+    Counter = 0
+
+  Counter += 1
+
+  if Counter == TBinFR+1:
+    Counter = 0
+    return True
+  else:
+    return False</q2:Script>
+            </Expression>
+            <Expression xsi:type="Condition">
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="1" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Mobility</q2:Name>
+              <q2:Script>from System import Tuple
+
+##### VALUES TO BE SET #####
+
+# &gt;&gt;&gt; Here are the values that should be set manually &lt;&lt;&lt;
+
+VideoFR = 0  # Video frame rate
+TBins = 0  # Do you want time bins? (True/False)
+Min = 0      # Minutes per time bin
+Ratio = 0  # Conversion ratio pixel to centimeter
+Threshold = 0 # Movement threshold - min pixels moved on average, every 5 frames
+Error = 0    # Pixels to move in five frames to be considered an error
+
+################
+
+Movement = 0
+TBinsMovement = 0
+PrevTBMovement = 0
+Accumulated = 0
+Frame = 0
+Counter = 0
+
+################
+
+@returns(Tuple[float,float])
+def process(value):
+  
+  global Movement
+  global TBinsMovement
+  global PrevTBMovement
+  global Counter
+  global Accumulated
+  global Frame
+
+  global VideoFR
+  global TBins
+  global Min
+  global Ratio
+  global Error
+  global Threshold
+  global TBinFR
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  Error = value.Item3.Item6
+  Threshold = value.Item3.Item7
+
+  Time = value.Item1.TotalMilliseconds
+  Current = value.Item2
+  Accumulated += Current
+  Frame += 1
+  Counter += 1
+  TBinFR = Min * 60 * VideoFR
+
+# Error handling for NaN values
+
+  if not Current &gt; -1:
+    Current = 0
+  if Current &gt; Error:
+    Current = 0
+
+# Accumulate distance travelled every five frames
+
+  Accumulated += Current
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    Movement = 0
+    TBinsMovement = 0
+    PrevTBMovement = 0
+    Accumulated = 0
+    Frame = 0
+    Counter = 0
+
+# Adds up euclidean distance if animal is moving
+
+  if Counter == 5:
+    Counter = 0
+    if Accumulated/5 &lt;= Threshold:
+      Movement = Movement + 5
+      Accumulated = 0
+    else:
+      Accumulated = 0
+
+# Time bin calculation
+
+  if TBins == 1:
+    if Frame == TBinFR:
+      Frame = 0
+      TBinsMovement = Movement - PrevTBMovement
+      PrevTBMovement = Movement
+
+# Result
+
+  return Tuple.Create(float(Movement/VideoFR), float(TBinsMovement/VideoFR))</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Speed AverageM</q2:Name>
+              <q2:Script>from System import Tuple
+
+##### VALUES TO BE SET #####
+
+# &gt;&gt;&gt; Here are the values that should be set manually &lt;&lt;&lt;
+
+VideoFR = 0  # Video frame rate
+TBins = 0  # Do you want time bins? (True/False)
+Min = 0    # Minutes per time bin
+Ratio = 0  # Conversion ratio pixel to centimeter
+Threshold = 0 # Movement threshold - min pixels moved on average, every 5 frames
+Error = 0    # Pixels to move in five frames to be considered an error
+
+################
+
+TDistance = 0
+TBinsDistance = 0
+PrevTBDis = 0
+MSpeed = 0
+TBMSpeed = 0
+Accumulated = 0
+Frame = 0
+Counter = 0
+MSpeedCounter = 0
+TBMSpeedCounter = 0
+TBinFR = Min * 60 * VideoFR
+Time = 0
+
+################
+
+@returns(Tuple[float,float,float])
+def process(value):
+  
+  global TDistance
+  global TBinsDistance
+  global PrevTBDis
+  global MSpeed
+  global TBMSpeed
+  global MSpeedCounter
+  global TBMSpeedCounter
+  global Accumulated
+  global Frame
+  global TBinFR
+  global Counter
+  global Time 
+
+  global VideoFR
+  global TBins
+  global Min
+  global Ratio
+  global Error
+  global Threshold
+  global TBinFR
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  Error = value.Item3.Item6
+  Threshold = value.Item3.Item7
+
+  Time = value.Item1.TotalMilliseconds
+  Current = value.Item2
+  Accumulated += Current
+  Frame += 1
+  Counter += 1
+  TBinFR = Min * 60 * VideoFR
+
+# Error handling
+
+  if not Current &gt; -1:
+    Current = 0
+  if Current &gt; Error:
+    Current = 0
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    TDistance = 0
+    TBinsDistance = 0
+    MSpeed = 0
+    TBMSpeed = 0
+    PrevTBDis = 0
+    Accumulated = 0
+    Frame = 0
+    Counter = 0
+    MSpeedCounter = 0
+    TBMSpeedCounter = 0
+
+# Adds up euclidean distance each frame and calculate speed
+
+  if Counter == 5:
+    Counter = 0
+    if Accumulated/5 &gt; Threshold:
+      TDistance = TDistance + Accumulated
+      MSpeedCounter += 5
+      TBMSpeedCounter += 5
+      Accumulated = 0
+    else:
+      Accumulated = 0
+
+  if MSpeedCounter != 0:
+    MSpeed = TDistance*Ratio/MSpeedCounter*VideoFR
+    
+# Time bins calculation
+
+  if TBins == 1:
+    if Frame == TBinFR:
+      Frame = 0
+      TBinsDistance = TDistance - PrevTBDis
+      PrevTBDis = TDistance
+      if TBMSpeedCounter != 0:
+        TBMSpeed = TBinsDistance*Ratio/TBMSpeedCounter*VideoFR
+        TBMSpeedCounter = 0
+      else:
+        TBMSpeed = 0
+        TBMSpeedCounter = 0
+
+# Results
+
+  return Tuple.Create(float(MSpeed), float(TBMSpeed), float(TBMSpeedCounter))</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Speed Average</q2:Name>
+              <q2:Script>from System import Tuple
+
+##### VALUES TO BE SET #####
+
+# &gt;&gt;&gt; Here are the values that should be set manually &lt;&lt;&lt;
+
+VideoFR = 0  # Video frame rate
+TBins = 0  # Do you want time bins? (True/False)
+Min = 0     # Minutes per time bin
+Ratio = 0  # Conversion ratio pixel to centimeter
+Error = 0   # Pixels to move in one frame to be considered an error
+
+################
+
+TDistance = 0
+TBinsDistance = 0
+Speed = 0
+TBSpeed = 0
+PrevTBDis = 0
+Frame = 0
+SpeedCounter = 0
+TBSpeedCounter = 0
+TBinFR = Min * 60 * VideoFR
+Time = 0
+
+################
+
+@returns(Tuple[float,float,float])
+def process(value):
+  
+  global TDistance
+  global TBinsDistance
+  global PrevTBDis
+  global Speed
+  global TBSpeed
+  global SpeedCounter
+  global TBSpeedCounter
+  global Frame
+  global Time
+
+  global VideoFR
+  global TBins
+  global Min
+  global Ratio
+  global Error
+  global TBinFR
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  Error = value.Item3.Item5
+
+  Time = value.Item1.TotalMilliseconds
+  Current = value.Item2
+  Frame += 1
+  SpeedCounter += 1
+  TBSpeedCounter += 1
+  TBinFR = Min * 60 * VideoFR
+
+# Error handling
+
+  if not Current &gt; -1:
+    Current = 0
+  if Current &gt; Error:
+    Current = 0
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    TDistance = 0
+    TBinsDistance = 0
+    Speed = 0
+    TBSpeed = 0
+    PrevTBDis = 0
+    Frame = 0
+    SpeedCounter = 0
+    TBSpeedCounter = 0
+
+# Adds up euclidean distance each frame and calculate speed
+
+  TDistance = TDistance + Current
+  
+  if SpeedCounter != 0:
+    Speed = ((TDistance*Ratio)/SpeedCounter)*VideoFR
+
+# Time bin calculation
+
+  if TBins == 1:
+    if Frame == TBinFR:
+      Frame = 0
+      TBinsDistance = TDistance - PrevTBDis
+      PrevTBDis = TDistance
+      TBSpeed = TBinsDistance*Ratio/TBSpeedCounter*VideoFR
+      TBSpeedCounter = 0
+ 
+# Results
+
+  return Tuple.Create(float(Speed), float(TBSpeed), float(TBSpeedCounter))</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Total DistanceM</q2:Name>
+              <q2:Script>from System import Tuple
+
+##### VALUES TO BE SET #####
+
+# &gt;&gt;&gt; Here are the values that should be set manually &lt;&lt;&lt;
+
+VideoFR = 0  # Video frame rate
+TBins = 0  # Do you want time bins? (True/False)
+Min = 0     # Minutes per time bin
+Ratio = 0  # Conversion ratio pixel to centimeter
+Threshold = 0 # Movement threshold - min pixels moved on average, every 5 frames
+Error = 0    # Pixels to move in five frames to be considered an error
+
+################
+
+MTDistance = 0
+TBinsMDistance = 0
+PrevTBMDis = 0
+Accumulated = 0
+Frame = 0
+Counter = 0
+TBinFR = Min * 60 * VideoFR
+
+################
+
+@returns(Tuple[float,float])
+def process(value):
+  
+  global MTDistance
+  global TBinsMDistance
+  global PrevTBMDis
+  global Counter
+  global Accumulated
+  global Frame
+
+  global VideoFR
+  global TBins
+  global Min
+  global Ratio
+  global Error
+  global Threshold
+  global TBinFR
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  Error = value.Item3.Item6
+  Threshold = value.Item3.Item7
+
+  Time = value.Item1.TotalMilliseconds
+  Current = value.Item2
+  Frame += 1
+  Counter += 1
+  TBinFR = Min * 60 * VideoFR
+
+# Error handling for NaN values
+
+  if not Current &gt; -1:
+    Current = 0
+  if Current &gt; Error:
+    Current = 0
+
+# Accumulate distance travelled every five frames
+
+  Accumulated += Current
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    MTDistance = 0
+    TBinsMDistance = 0
+    PrevTBMDis = 0
+    Accumulated = 0
+    Frame = 0
+    Counter = 0
+
+# Adds up euclidean distance if animal is moving
+
+  if Counter == 5:
+    Counter = 0
+    if Accumulated/5 &gt; Threshold:
+      MTDistance = MTDistance + Accumulated
+      Accumulated = 0
+    else:
+      Accumulated = 0
+
+# Time bin calculation
+
+  if TBins == 1:
+    if Frame == TBinFR:
+      Frame = 0
+      TBinsMDistance = MTDistance - PrevTBMDis
+      PrevTBMDis = MTDistance
+
+# Result
+
+  return Tuple.Create(MTDistance*Ratio, TBinsMDistance*Ratio)</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Total Distance</q2:Name>
+              <q2:Script>from System import Tuple
+
+##### VALUES TO BE SET #####
+
+# &gt;&gt;&gt; Here are the values that should be set manually &lt;&lt;&lt;
+
+VideoFR = 0  # Video frame rate
+TBins = 0  # Do you want time bins? (True/False)
+Min = 0    # Minutes per time bin
+Ratio = 0  # Conversion ratio pixel to centimeter
+Error = 0    # Pixels to move in one frame to be considered an error
+
+################
+
+TDistance = 0
+TBinsDistance = 0
+PrevTBDis = 0
+Frame = 0
+TBinFR = Min * 60 * VideoFR
+
+################
+
+@returns(Tuple[float,float])
+def process(value):
+  
+  global TDistance
+  global TBinsDistance
+  global PrevTBDis
+  global Frame
+
+  global VideoFR
+  global TBins
+  global Min
+  global Ratio
+  global Error
+  global TBinFR
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  Error = value.Item3.Item5
+  
+  Time = value.Item1.TotalMilliseconds
+  Current = value.Item2
+  Frame += 1
+  TBinFR = Min * 60 * VideoFR
+
+# Error handling
+
+  if not Current &gt; -1:
+    Current = 0
+  if Current &gt; Error:
+    Current = 0
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    Current = 0
+    TDistance = 0
+    TBinsDistance = 0
+    Frame = 0
+    PrevTBDis = 0
+
+# Adds up euclidean distance each frame
+
+  TDistance = TDistance + Current
+
+# Time bin calculation
+
+  if TBins == 1:
+    if Frame == TBinFR:
+      Frame = 0
+      TBinsDistance = TDistance - PrevTBDis
+      PrevTBDis = TDistance
+
+# Results
+
+  return Tuple.Create(TDistance*Ratio, TBinsDistance*Ratio)</q2:Script>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>FileName</Name>
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>NameToCSV</q2:Name>
+              <q2:Script>@returns(str)
+def process(value):
+  
+  a = value.split('\\')
+  b = a[-1].split('.')
+  c = b[0]
+  d = ""
+  for i in a[:-2]:
+    d = d + i + '\\'
+  e = d + "Data" + '.csv'
+
+  return e</q2:Script>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="FileName" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>FileName</Name>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Value" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="StringProperty">
+                <Value>C:\Users\User\Desktop\Microglia Project\Behavior Data\Bonsai\OFT Videos\Analysing\OFT 1\Trial     1.mpg</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>NameToCSV</q2:Name>
+              <q2:Script>a = []
+b = []
+c = ""
+
+@returns(str)
+def process(value):
+  
+  global a
+  global b 
+  global c
+
+  a = value.split('\\')
+  b = a[-1].split('.')
+  VideoName = b[0]
+
+  return VideoName</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Skip">
+                <Count>200</Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Data Processing</q2:Name>
+              <q2:Script>from System import Tuple
+
+##################
+
+VideoName = ""
+
+##################
+
+@returns(Tuple[str,str,str,str,str,str])
+def process(value):
+
+  global VideoName
+
+  VideoName = value.Item6
+
+  TBDistance = str(value.Item1.Item2) + ";"
+  TBMDistance = str(value.Item2.Item2) + ";"
+  TBSpeed = str(value.Item3.Item2) + ";"
+  TBMSpeed = str(value.Item4.Item2) + ";"
+  TBMobility = str(value.Item5.Item2)
+
+  return Tuple.Create(VideoName,TBDistance,TBMDistance,TBSpeed,TBMSpeed,TBMobility)</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Gate" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Skip">
+                <Count>1</Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>TBData</q2:Name>
+              <q2:Script>from System import Tuple
+
+DataCSV = ""
+List = []
+Counter = 0
+
+@returns(list)
+def process(value):
+  
+  global Counter
+  global List
+  global DataCSV
+
+  VideoName = value.Item1.Item1
+  TBDistance = value.Item1.Item2
+  TBMDistance = value.Item1.Item3
+  TBSpeed = value.Item1.Item4
+  TBMSpeed = value.Item1.Item5
+  TBMobility = value.Item1.Item6
+
+  Time = value.Item3.TotalMilliseconds
+  
+  if Time == 0:
+    DataCSV = ""
+    List = []
+    Counter = 0
+
+  DataCSV = VideoName + ";" + ";" + ";" + TBDistance + TBMDistance + TBSpeed + TBMSpeed + TBMobility + "\n"
+
+  List.append(DataCSV)
+
+  return List</q2:Script>
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>Data Processing</q2:Name>
+              <q2:Script>from System import Tuple
+
+##################
+
+VideoName = ""
+Frame = 0
+
+##################
+
+@returns(list)
+def process(value):
+
+  global VideoName
+  global Frame
+
+
+  VideoName = value.Item6
+  Time = value.Item7.TotalMilliseconds
+  
+  if Time == 0:
+    Frame = 0
+  
+  Frame += 1
+
+  Distance = str(value.Item1.Item1) + ";"
+  MDistance = str(value.Item2.Item1) + ";"
+  Speed = str(value.Item3.Item1) + ";"
+  MSpeed = str(value.Item4.Item1) + ";"
+  Mobility = str(value.Item5.Item1)
+
+  DataCSV = VideoName + ";" + ";" + ";" + "Total;" + Distance + MDistance + Speed + MSpeed + Mobility
+  
+  return [DataCSV, Frame, value.Item3.Item3, value.Item4.Item3]
+</q2:Script>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="TakeLast">
+                <Count>1</Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="Zip" />
+            </Expression>
+            <Expression xsi:type="q2:PythonTransform">
+              <q2:Name>WritetoCSV</q2:Name>
+              <q2:Script>from System import Tuple
+
+Header = 0
+TBins = 1
+Counter = 0 
+Min = 0
+VideoFR = 0
+TotalValue = 0
+Distance = 0
+MDistance = 0
+Speed = 0
+MSpeed = 0
+Mobility = 0
+Ratio = 0
+
+@returns(str)
+def process(value):
+
+  global Header
+  global TBins
+  global Counter 
+  global VideoFR
+  global TotalValue
+  global Distance  
+  global MDistance  
+  global Speed  
+  global MSpeed 
+  global Mobility 
+  global Ratio
+
+  Ratio = value.Item3.Item4
+  VideoFR = value.Item3.Item1
+ 
+  TBins = value.Item3.Item2[0]
+  FinalData = ""
+  BinData = ""
+  ActualMin = 0
+  ActualMin2 = 0
+  Timepoint = []
+  Timepointz = ""
+
+  FolderPath = value.Item4.split('\\')
+  Folder = FolderPath[-2]
+  Counter = 0
+
+  Frame = value.Item1[1]
+  if (Frame + 300) &gt; 60*VideoFR:
+    m , s = divmod(((Frame+300)/VideoFR), 60)
+  else:
+    m = 0
+    s = int(round((Frame+300)/60,0))
+  Min = value.Item3.Item3
+  VideoFR = value.Item3.Item1
+  TBinFR = Min * 60 * VideoFR 
+  
+  Final = value.Item1[0]
+
+  if Header == 0:
+    Header = 1
+    FinalData += "Folder;" + "FileName;" + "ID;" + "Condition;" + "Time;" + "Total Distance;" + "Total MDistance;" + "Average Speed;" + "Average MSpeed;" + "Time not Moving\n"
+
+  if TBins == 1:
+    for i in value.Item2:
+      Counter += 1
+      ActualMin = Min * Counter
+      ActualMin2 = Min * (Counter-1)
+      splitz = [x + ";" for x in i.split(";")]
+      FileName = splitz[0]
+      MobList = [(i.split(";")[-1])]
+      Minutes1 = str(int(round(ActualMin2-0.5,0))) + "min" + str(int(round(((ActualMin2-int(round(ActualMin2-0.5,0)))*60),0))) + "sec"
+      if ActualMin2 == 0:
+        Minutes1= "0min"
+      Minutes2 = str(int(round(ActualMin-0.5,0))) + "min" + str(int(round(((ActualMin-int(round(ActualMin-0.5,0)))*60),0))) + "sec"
+      TimePoint = [str(Minutes1) + " to " + str(Minutes2) + ";"]
+      Data = splitz[:3] + TimePoint + splitz[3:-1] + MobList
+      for a in Data:
+        BinData += a
+      FinalData += (Folder + ";" + BinData).replace(".",",")
+      BinData = ""
+      
+      ValueSplit = i.split(";")
+      ValueFinal = Final.split(";")
+      Distance += float(ValueSplit[-5])
+      MDistance += float(ValueSplit[-4])
+      Speed += float(ValueSplit[-3])
+      MSpeed += float(ValueSplit[-2])
+      Mobility += float(ValueSplit[-1])
+
+    if Frame &gt;= ((Counter*TBinFR)+(TBinFR*0.1)): 
+      FDistance = str(float(ValueFinal[-5]) - Distance) + ";"
+      FMDistance = str(float(ValueFinal[-4]) - MDistance) + ";"
+      if value.Item1[2] != 0:
+        FSpeed = str((float(ValueFinal[-5]) - Distance)/value.Item1[2]*VideoFR) + ";"
+      else:
+        FSpeed = str(round((float(ValueFinal[-5]) - Distance)*VideoFR,1)) + ";"
+      if value.Item1[3] != 0:
+        FMSpeed = str((float(ValueFinal[-4]) - MDistance)/value.Item1[3]*VideoFR) + ";"
+      else:
+        FMSpeed = str(round((float(ValueFinal[-4]) - MDistance)*VideoFR,1)) + ";"
+      FMobility = str(float(ValueFinal[-1]) - Mobility) + "\n"
+
+      Minutes1 = str(int(round(ActualMin-0.5,0))) + "min" + str(int(round(((ActualMin-int(round(ActualMin-0.5,0)))*60),0))) + "sec"
+      TimePointz = Minutes1 + " to End;"
+    
+      FinalBin = Folder + ";" + FileName + " ;" + " ;" + TimePointz + FDistance + FMDistance + FSpeed + FMSpeed + FMobility 
+        
+      FinalData += (FinalBin).replace(".",",")
+
+  Counter = 0
+  TotalValue = 0
+  Distance = 0
+  MDistance = 0
+  Speed = 0
+  MSpeed = 0
+  Mobility = 0
+
+  FinalData += (Folder + ";" + Final).replace(".",",")
+
+  return FinalData</q2:Script>
+            </Expression>
+            <Expression xsi:type="q1:CsvWriter">
+              <q1:FileName>C:\Users\User\Desktop\Microglia Project\Behavior Data\Bonsai\OFT Videos\Analysing\Data.csv</q1:FileName>
+              <q1:Append>false</q1:Append>
+              <q1:Overwrite>false</q1:Overwrite>
+              <q1:Suffix>None</q1:Suffix>
+              <q1:IncludeHeader>true</q1:IncludeHeader>
+            </Expression>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="ReplaySubject">
+              <Name>FileName</Name>
+              <BufferSize xsi:nil="true" />
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="2" To="17" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="5" Label="Source1" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="9" To="10" Label="Source1" />
+            <Edge From="10" To="11" Label="Source1" />
+            <Edge From="11" To="12" Label="Source1" />
+            <Edge From="12" To="13" Label="Source1" />
+            <Edge From="12" To="14" Label="Source2" />
+            <Edge From="13" To="14" Label="Source1" />
+            <Edge From="14" To="15" Label="Source1" />
+            <Edge From="14" To="16" Label="Source1" />
+            <Edge From="14" To="40" Label="Source2" />
+            <Edge From="15" To="33" Label="Source2" />
+            <Edge From="15" To="31" Label="Source2" />
+            <Edge From="15" To="27" Label="Source2" />
+            <Edge From="15" To="29" Label="Source2" />
+            <Edge From="15" To="25" Label="Source2" />
+            <Edge From="16" To="22" Label="Source2" />
+            <Edge From="16" To="25" Label="Source3" />
+            <Edge From="16" To="27" Label="Source3" />
+            <Edge From="16" To="29" Label="Source3" />
+            <Edge From="16" To="31" Label="Source3" />
+            <Edge From="16" To="33" Label="Source3" />
+            <Edge From="16" To="48" Label="Source2" />
+            <Edge From="16" To="52" Label="Source3" />
+            <Edge From="17" To="18" Label="Source1" />
+            <Edge From="18" To="20" Label="Source1" />
+            <Edge From="18" To="19" Label="Source1" />
+            <Edge From="19" To="20" Label="Source2" />
+            <Edge From="20" To="21" Label="Source1" />
+            <Edge From="21" To="33" Label="Source1" />
+            <Edge From="21" To="31" Label="Source1" />
+            <Edge From="21" To="29" Label="Source1" />
+            <Edge From="21" To="27" Label="Source1" />
+            <Edge From="21" To="25" Label="Source1" />
+            <Edge From="21" To="22" Label="Source1" />
+            <Edge From="21" To="48" Label="Source3" />
+            <Edge From="21" To="42" Label="Source7" />
+            <Edge From="22" To="23" Label="Source1" />
+            <Edge From="23" To="24" Label="Source1" />
+            <Edge From="24" To="46" Label="Source2" />
+            <Edge From="25" To="26" Label="Source1" />
+            <Edge From="26" To="42" Label="Source5" />
+            <Edge From="27" To="28" Label="Source1" />
+            <Edge From="28" To="42" Label="Source4" />
+            <Edge From="29" To="30" Label="Source1" />
+            <Edge From="30" To="42" Label="Source3" />
+            <Edge From="31" To="32" Label="Source1" />
+            <Edge From="32" To="42" Label="Source2" />
+            <Edge From="33" To="34" Label="Source1" />
+            <Edge From="34" To="42" Label="Source1" />
+            <Edge From="35" To="36" Label="Source1" />
+            <Edge From="35" To="52" Label="Source4" />
+            <Edge From="36" To="37" Label="Source1" />
+            <Edge From="37" To="54" Label="Source2" />
+            <Edge From="38" To="39" Label="Source1" />
+            <Edge From="39" To="40" Label="Source1" />
+            <Edge From="40" To="41" Label="Source1" />
+            <Edge From="41" To="42" Label="Source6" />
+            <Edge From="42" To="43" Label="Source1" />
+            <Edge From="42" To="45" Label="Source1" />
+            <Edge From="42" To="50" Label="Source1" />
+            <Edge From="43" To="44" Label="Source1" />
+            <Edge From="45" To="46" Label="Source1" />
+            <Edge From="46" To="47" Label="Source1" />
+            <Edge From="47" To="48" Label="Source1" />
+            <Edge From="48" To="49" Label="Source1" />
+            <Edge From="49" To="52" Label="Source2" />
+            <Edge From="50" To="51" Label="Source1" />
+            <Edge From="51" To="52" Label="Source1" />
+            <Edge From="52" To="53" Label="Source1" />
+            <Edge From="53" To="54" Label="Source1" />
+            <Edge From="55" To="56" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Concat" />
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+    </Edges>
+  </Workflow>
+  <ExtensionTypes>
+    <Type>Bonsai.Expressions.StringProperty, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.SubtractBuilder, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.IO.CsvWriter, Bonsai.System, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.IO.GetFiles, Bonsai.System, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.CombineLatest, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Concat, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Gate, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.RepeatCount, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Skip, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Take, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.TakeLast, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Timestamp, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Zip, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.BinaryRegionAnalysis, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.ColorBalance, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Crop, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.FileCapture, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.FindContours, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.LargestBinaryRegion, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Smooth, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+  </ExtensionTypes>
+</WorkflowBuilder>
