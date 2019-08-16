@@ -1,5 +1,5 @@
 # This is the node where all settings are set. The values established here are propagated to further nodes to allow for easy alterations to the whole workflow.
-#
+# The values set here are an example used for motor behavior quantification in the 1h OFT.
 
 from System import Tuple
 
