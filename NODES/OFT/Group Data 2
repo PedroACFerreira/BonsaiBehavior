@@ -1,0 +1,33 @@
+from System import Tuple
+
+##################
+
+VideoName = ""
+Frame = 0
+
+##################
+
+@returns(list)
+def process(value):
+
+  global VideoName
+  global Frame
+
+
+  VideoName = value.Item6
+  Time = value.Item7.TotalMilliseconds
+  
+  if Time == 0:
+    Frame = 0
+  
+  Frame += 1
+
+  Distance = str(value.Item1.Item1) + ";"
+  MDistance = str(value.Item2.Item1) + ";"
+  Speed = str(value.Item3.Item1) + ";"
+  MSpeed = str(value.Item4.Item1) + ";"
+  Mobility = str(value.Item5.Item1)
+
+  DataCSV = VideoName + ";" + ";" + ";" + "Total;" + Distance + MDistance + Speed + MSpeed + Mobility
+  
+  return [DataCSV, Frame, value.Item3.Item3, value.Item4.Item3]
