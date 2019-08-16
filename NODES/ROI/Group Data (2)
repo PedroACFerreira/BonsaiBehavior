@@ -1,0 +1,29 @@
+from System import Tuple
+
+##################
+
+VideoName = ""
+Frame = 0
+
+##################
+
+@returns(list)
+def process(value):
+
+  global VideoName
+  global Frame
+  
+  VideoFR = value.Item4.Item1
+  VideoName = value.Item2
+  Time = value.Item3.TotalMilliseconds
+  
+  if Time == 0:
+    Frame = 0
+  
+  List = value.Item1.Item1
+
+  Frame += 1
+
+  DataCSV = VideoName + ";" + ";" + ";" + "Total;" + str(List[0]/VideoFR) + ";" + str(List[1]/VideoFR) + ";" + str(List[2]/VideoFR) + ";" + str(List[3]/VideoFR) + ";" + str(List[4]/VideoFR)
+  
+  return [DataCSV, Frame]
