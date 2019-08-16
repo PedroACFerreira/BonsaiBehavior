@@ -75,7 +75,7 @@ def process(value):
     Frame = 0
     Counter = 0
 
-# Adds up frames if animal moved
+# Adds up frames if animal didn't move
 
   if Counter == 5:
     Counter = 0
