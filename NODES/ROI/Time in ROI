@@ -1,0 +1,114 @@
+from System import Tuple
+
+# This node calculates the time spent in each ROI.
+
+# Settings variables call
+
+VideoFR = 0  # Video frame rate
+TBins = 0  # Do you want time bins? (True/False)
+Min = 0    # Minutes per time bin
+
+################
+
+Frame = 0
+TBinFR = Min * 60 * VideoFR
+
+TimeSpent = []
+TSBPrev = []
+TSBFinal = []
+Bins = []
+
+c = 0
+MaxIndex = 0
+counter = 0
+
+################
+
+@returns(Tuple[list,list])
+def process(value):
+  
+  global Frame
+
+  global VideoFR
+  global TBins
+  global Min
+  global TBinFR
+  global TimeSpent
+  global TimeSpentBins
+  global c
+  global MaxIndex
+  global counter
+  global TSBPrev
+  global TSBFinal
+
+  global Bins
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  
+  Time = value.Item1.TotalMilliseconds
+  Frame += 1
+  TBinFR = Min * 60 * VideoFR
+
+  Center = value.Item4[0]
+  TopLeft = value.Item4[1]
+  TopRight = value.Item4[2]
+  BottomLeft = value.Item4[3]
+  BottomRight = value.Item4[4]
+  CheckTop = value.Item4[5]
+  CheckLeft = value.Item4[6]
+  CheckRight = value.Item4[7]
+  CheckBottom = value.Item4[8]
+
+  Positions = [Center,TopLeft,TopRight,BottomLeft,BottomRight,CheckTop,CheckLeft,CheckRight,CheckBottom]
+
+  for i in Positions:
+    c = c + i
+
+  if c > 1:
+    MaxIndex = Positions.index(max(Positions))
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    Frame = 0
+    c = 0
+    MaxIndex = 0
+    counter = 0
+    TimeSpent = []
+    TimeSpentBins = []
+    TSBPrev = []
+    TSBFinal = []
+    counter = 0
+
+# Adds up time spent in each place each frame
+
+  if counter == 0:
+    for i in range(5):
+      TimeSpent.append(float(0))
+      TSBPrev.append(float(0))
+      Bins.append(float(0))
+    counter = 1
+
+  if c > 1:
+    if MaxIndex < 5:
+      TimeSpent[MaxIndex] += 1
+      c = 0
+    
+# Time bin calculation
+  
+  if TBins == True:
+    if Frame == TBinFR:
+      Frame = 0
+      BinsNow = []
+      for i in range(5):
+        BinsNow.append(TimeSpent[i])
+      for i in range(5):
+        Bins[i] = BinsNow[i] - TSBPrev[i]
+      TSBPrev = BinsNow
+      
+# Results
+
+  return Tuple.Create(TimeSpent, Bins)
