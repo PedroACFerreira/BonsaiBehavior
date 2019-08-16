@@ -2,7 +2,7 @@
 
 Created by Pedro Ferreira for the Master thesis "Microglia-mediated remodelling of the cerebellar circuit".
 
-This project is licensed under the terms of the MIT license. If used in published papers, please cite as:
+This project is licensed under the terms of the MIT license. If used for obtaining data to be published, please cite as:
 
 Ferreira, P (2019) Custom Bonsai-Rx worklfow for rodent behavior semi-automated analysis. https://github.com/PedroACFerreira/BonsaiBehavior
 
