@@ -1,0 +1,36 @@
+# This is the node where all settings are set. The values established here are propagated to further nodes to allow for easy alterations to the whole workflow.
+#
+
+from System import Tuple
+
+################################################################################
+#    Here's the values to be set manually   #
+################################################################################
+
+VideoFR = 30      # Video frame rate (Frames per second)
+TBinsEnable = 1   # Do you want time bins? (1/0)
+Min = 10          # Minutes per time bin
+Ratio = 0.12      # Conversion ratio pixel to centimeter
+Error1 = 25       # Maximum number of pixels to move in one frame
+Error5 = 100      # Maximum number pixels to move in five frames
+Threshold = 1     # Minimum number of pixels to move on average in five frames
+NumTBins = 6      # Total number of time bins pretended
+
+################################################################################
+
+TBins = [TBinsEnable,NumTBins]
+
+################################################################################
+
+@returns(Tuple[int,list,float,float,float,float,float])
+def process(value):
+
+  global VideoFR
+  global Min
+  global Ratio
+  global Error1
+  global Error5
+  global Threshold
+  global TBins
+
+  return Tuple.Create(VideoFR,TBins,float(Min),float(Ratio),float(Error1),float(Error5),float(Threshold))
