@@ -1,0 +1,5 @@
+import math
+@returns(float)
+def process(value):
+  speed = math.sqrt(((value.Item1.X-value.Item2.X)**2)+((value.Item1.Y-value.Item2.Y)**2))
+  return float(speed)
