@@ -1,0 +1,79 @@
+# This node calculates Total Distance travelled similarly to the EthoVision XT software.
+
+from System import Tuple
+
+# Settings variables call
+
+VideoFR = 0  
+TBins = 0  
+Min = 0    
+Ratio = 0  
+Error = 0    
+
+################
+
+TDistance = 0
+TBinsDistance = 0
+PrevTBDis = 0
+Frame = 0
+TBinFR = Min * 60 * VideoFR
+
+################
+
+@returns(Tuple[float,float])
+def process(value):
+  
+  global TDistance
+  global TBinsDistance
+  global PrevTBDis
+  global Frame
+
+  global VideoFR
+  global TBins
+  global Min
+  global Ratio
+  global Error
+  global TBinFR
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  Error = value.Item3.Item5
+  
+  Time = value.Item1.TotalMilliseconds
+  Current = value.Item2
+  Frame += 1
+  TBinFR = Min * 60 * VideoFR
+
+# Error handling
+
+  if not Current > -1:
+    Current = 0
+  if Current > Error:
+    Current = 0
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    Current = 0
+    TDistance = 0
+    TBinsDistance = 0
+    Frame = 0
+    PrevTBDis = 0
+
+# Adds up euclidean distance each frame
+
+  TDistance = TDistance + Current
+
+# Time bin calculation
+
+  if TBins == 1:
+    if Frame == TBinFR:
+      Frame = 0
+      TBinsDistance = TDistance - PrevTBDis
+      PrevTBDis = TDistance
+
+# Results
+
+  return Tuple.Create(TDistance*Ratio, TBinsDistance*Ratio)
