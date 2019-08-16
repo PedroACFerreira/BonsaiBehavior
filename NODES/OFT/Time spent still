@@ -1,0 +1,98 @@
+from System import Tuple
+
+# This node calculates the amount of time the animal is moving around using a movement threshold.
+
+# Settings variable call
+
+VideoFR = 0  # Video frame rate
+TBins = 0  # Do you want time bins? (True/False)
+Min = 0      # Minutes per time bin
+Ratio = 0  # Conversion ratio pixel to centimeter
+Threshold = 0 # Movement threshold - min pixels moved on average, every 5 frames
+Error = 0    # Pixels to move in five frames to be considered an error
+
+################
+
+Movement = 0
+TBinsMovement = 0
+PrevTBMovement = 0
+Accumulated = 0
+Frame = 0
+Counter = 0
+
+################
+
+@returns(Tuple[float,float])
+def process(value):
+  
+  global Movement
+  global TBinsMovement
+  global PrevTBMovement
+  global Counter
+  global Accumulated
+  global Frame
+
+  global VideoFR
+  global TBins
+  global Min
+  global Ratio
+  global Error
+  global Threshold
+  global TBinFR
+
+  VideoFR = value.Item3.Item1
+  TBins = value.Item3.Item2[0]
+  Min = value.Item3.Item3
+  Ratio = value.Item3.Item4
+  Error = value.Item3.Item6
+  Threshold = value.Item3.Item7
+
+  Time = value.Item1.TotalMilliseconds
+  Current = value.Item2
+  Accumulated += Current
+  Frame += 1
+  Counter += 1
+  TBinFR = Min * 60 * VideoFR
+
+# Error handling for NaN values
+
+  if not Current > -1:
+    Current = 0
+  if Current > Error:
+    Current = 0
+
+# Accumulate distance travelled every five frames
+
+  Accumulated += Current
+
+# Check to see if new video has begun, reset all values
+
+  if Time == 0:
+    Movement = 0
+    TBinsMovement = 0
+    PrevTBMovement = 0
+    Accumulated = 0
+    Frame = 0
+    Counter = 0
+
+# Adds up frames if animal moved
+
+  if Counter == 5:
+    Counter = 0
+    if Accumulated/5 <= Threshold:
+      Movement = Movement + 5
+      Accumulated = 0
+    else:
+      Accumulated = 0
+
+# Time bin calculation
+
+  if TBins == 1:
+    if Frame == TBinFR:
+      Frame = 0
+      TBinsMovement = Movement - PrevTBMovement
+      PrevTBMovement = Movement
+
+# Result
+
+  return Tuple.Create(float(Movement/VideoFR), float(TBinsMovement/VideoFR))
