@@ -1,0 +1,17 @@
+from System import Tuple
+
+##################
+
+VideoName = ""
+
+##################
+
+@returns(Tuple[str,list])
+def process(value):
+
+  global VideoName
+  
+  VideoName = value.Item2
+  List = value.Item1.Item2
+
+  return Tuple.Create(VideoName,List)
