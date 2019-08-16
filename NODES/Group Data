@@ -1,0 +1,22 @@
+from System import Tuple
+
+##################
+
+VideoName = ""
+
+##################
+
+@returns(Tuple[str,str,str,str,str,str])
+def process(value):
+
+  global VideoName
+
+  VideoName = value.Item6
+
+  TBDistance = str(value.Item1.Item2) + ";"
+  TBMDistance = str(value.Item2.Item2) + ";"
+  TBSpeed = str(value.Item3.Item2) + ";"
+  TBMSpeed = str(value.Item4.Item2) + ";"
+  TBMobility = str(value.Item5.Item2)
+
+  return Tuple.Create(VideoName,TBDistance,TBMDistance,TBSpeed,TBMSpeed,TBMobility)
