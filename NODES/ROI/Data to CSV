@@ -1,0 +1,117 @@
+from System import Tuple
+
+Header = 0
+TBins = 1
+Counter = 0 
+Min = 0
+VideoFR = 0
+TotalValue = 0
+Ratio = 0
+VCenter = 0
+VTopLeft = 0
+VTopRight = 0
+VBottomRight = 0
+VBottomLeft = 0
+
+
+@returns(str)
+def process(value):
+
+  global Header
+  global TBins
+  global Counter 
+  global VideoFR
+  global TotalValue 
+  global Ratio
+
+  global VCenter
+  global VTopLeft 
+  global VTopRight 
+  global VBottomRight
+  global VBottomLeft
+
+  Ratio = value.Item3.Item4
+  VideoFR = value.Item3.Item1
+ 
+  TBins = value.Item3.Item2[0]
+  FinalData = ""
+  BinData = ""
+  ActualMin = 0
+  ActualMin2 = 0
+  Timepoint = []
+  Timepointz = ""
+
+  Final = value.Item1[0]
+  
+  FolderPath = value.Item4.split('\\')
+  Folder = FolderPath[-2]
+  Counter = 0
+
+  Frame = value.Item1[1]
+  if (Frame + 300) > 60*VideoFR:
+    m , s = divmod(((Frame+300)/VideoFR), 60)
+  else:
+    m = 0
+    s = int(round((Frame+300)/60,0))
+  Min = value.Item3.Item3
+
+  TBinFR = Min * 60 * VideoFR 
+  
+
+  if Header == 0:
+    Header = 1
+    FinalData += "Folder;" + "FileName;" + "ID;" + "Condition;" + "Time;" + "Center;" + "TopLeft;" + "TopRight;" + "BottomLeft;" + "BottomRight\n"
+
+  if TBins == 1:
+
+    for i in value.Item2:
+      Counter += 1
+      splitz = [x + ";" for x in i.split(";")]
+      ActualMin = Min * Counter
+      ActualMin2 = Min * (Counter-1)
+      FileName = splitz[0]
+      Minutes1 = str(int(round(ActualMin2-0.5,0))) + "min" + str(int(round(((ActualMin2-int(round(ActualMin2-0.5,0)))*60),0))) + "sec"
+      if ActualMin2 == 0:
+        Minutes1= "0min"
+      Minutes2 = str(int(round(ActualMin-0.5,0))) + "min" + str(int(round(((ActualMin-int(round(ActualMin-0.5,0)))*60),0))) + "sec"
+      TimePoint = [str(Minutes1) + " to " + str(Minutes2) + ";"]
+      Data = splitz[:3] + TimePoint + splitz[3:-1]
+      for a in Data:
+        BinData += a
+      FinalData += (Folder + ";" + BinData + "\n").replace(".",",")
+      BinData = ""
+      
+      ValueSplit = i.split(";")
+      ValueFinal = Final.split(";")
+      VCenter += float(ValueSplit[-6])
+      VTopLeft += float(ValueSplit[-5])
+      VTopRight += float(ValueSplit[-4])
+      VBottomLeft += float(ValueSplit[-3])
+      VBottomRight += float(ValueSplit[-2])
+
+    if Frame >= ((Counter*TBinFR)+(TBinFR*0.1)): 
+
+      Center = str(float(ValueFinal[-5]) - VCenter) + ";"
+      TopLeft = str(float(ValueFinal[-4]) - VTopLeft) + ";"
+      TopRight = str(float(ValueFinal[-5]) - VTopRight) + ";"
+      BottomLeft = str(float(ValueFinal[-4]) - VBottomLeft) + ";"
+      BottomRight = str(float(ValueFinal[-1]) - VBottomRight) + "\n"
+
+      VCenter = 0
+      VTopLeft = 0
+      VTopRight = 0
+      VBottomLeft = 0
+      VBottomRight = 0
+
+      Minutes1 = str(int(round(ActualMin-0.5,0))) + "min" + str(int(round(((ActualMin-int(round(ActualMin-0.5,0)))*60),0))) + "sec"
+      TimePointz = Minutes1 + " to End;"
+    
+      FinalBin = Folder + ";" + FileName + " ;" + " ;" + TimePointz + Center + TopLeft + TopRight  + BottomLeft + BottomRight 
+        
+      FinalData += (FinalBin).replace(".",",")
+
+  Counter = 0
+
+  FinalData += (Folder + ";" + Final).replace(".",",")
+
+  return FinalData
