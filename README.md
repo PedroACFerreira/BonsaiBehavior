@@ -4,7 +4,7 @@ Created by Pedro Ferreira for the Master thesis "Microglia-mediated remodelling 
 
 This project is licensed under the terms of the MIT license. If used for obtaining data to be published, please cite as:
 
-Ferreira, P (2019) Custom Bonsai-Rx worklfow for rodent behavior semi-automated analysis. https://github.com/PedroACFerreira/BonsaiBehavior
+Ferreira, P.A. (2019) Custom Bonsai-Rx worklfow for semi-automated analysis of rodent motor behavior. https://github.com/PedroACFerreira/BonsaiBehavior
 
 ---------------------------------------------------------------------------------------------------------------------- 
 
