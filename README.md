@@ -10,10 +10,8 @@ Ferreira, P.A. (2019) Custom Bonsai-Rx worklfow for semi-automated analysis of r
 
 Requires Bonsai-Rx v2.4 or newer (https://bitbucket.org/horizongir/bonsai/downloads).
 
-The "Bonsai Behavior.bonsai" and "Bonsai Behavior.layout" files are both required to be in the same folder to be run. 
-
-IronPython code for original nodes can be found in the .txt files of the same name in the NODES folder.
+Python code for original nodes can be found in the .txt files of the same name in the NODES folder.
 
 ---------------------------------------------------------------------------------------------------------------------- 
 
-Any questions, requests or suggestions can be forwarded to pedro.biochemistry@gmail.com. I will answer as soon as possible!
+Any questions, requests or suggestions can be forwarded to pedro.ferreira@cnc.uc.pt
